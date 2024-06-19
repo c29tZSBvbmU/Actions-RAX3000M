@@ -89,8 +89,8 @@ cp -rf ../kiddin9/luci-app-onliner/* luci-app-onliner
 mkdir luci-app-wolplus
 cp -rf ../kiddin9/luci-app-wolplus/* luci-app-wolplus
 #WiFischedule
-mkdir luci-app-wifischedule
-cp -rf ../kiddin9/luci-app-wifischedule/* luci-app-wifischedule
+#mkdir luci-app-wifischedule
+#cp -rf ../kiddin9/luci-app-wifischedule/* luci-app-wifischedule
 #RAMfree
 mkdir luci-app-ramfree
 cp -rf ../kiddin9/luci-app-ramfree/* luci-app-ramfree
