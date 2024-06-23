@@ -194,7 +194,7 @@ jobs:
           rename "s/.*${val}/${{ env.FILE_DATE }}-${{ env.OPENWRT_NAME }}-${val}${{ env.WIFI_INTERFACE }}${{ env.BUILD_DOCKERMAN }}/" *
           echo "$val"
         done
-        rename 's/cmcc_rax3000m/cmcc_rax3000m_nand-512m/' *
+        rename "s/cmcc_rax3000m/cmcc_rax3000m_nand-512m/" *
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
 
