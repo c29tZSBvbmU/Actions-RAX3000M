@@ -183,7 +183,7 @@ cp -rf ../kiddin9/luci-lib-taskd/* luci-lib-taskd
 cp -rf ../kiddin9/luci-lib-xterm/* luci-lib-xterm
 cp -rf ../kiddin9/luci-app-store/* luci-app-store
 cp -rf ../kiddin9/quickstart/* quickstart
-cp -rf ../kiddin9/luci-app-quickstart/* luci-app-quickstart/
+cp -rf ../kiddin9/luci-app-quickstart/* luci-app-quickstart
 
 # 5G通信模组拨号工具
 mkdir quectel_QMI_WWAN
