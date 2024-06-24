@@ -173,7 +173,7 @@ cp -rf ../kiddin9/luci-app-argon-config/* luci-app-argon-config
 # iStore应用
 mkdir istore/taskd
 mkdir istore/luci-lib-taskd
-mkdir istoreluci-lib-xterm
+mkdir istore/luci-lib-xterm
 #mkdir luci-app-store
 #mkdir quickstart
 #mkdir luci-app-quickstart
