@@ -40,7 +40,7 @@
 # 用WinSCP连接openwrt，在/www/luci-static/argon里面创建background文件夹（如果本身就有background就不需要创建）来存放jpg png gif格式图片可以自定义登陆界面，gif图片为动态登陆界面
 
 ### 修改DTS的ubi为238MB的0xee00000>
-sed -i 's/reg = <0x580000 0x7200000>/reg = <0x580000 0xee00000>/' target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-cmcc-rax3000m.dts
+#sed -i 's/reg = <0x580000 0x7200000>/reg = <0x580000 0xee00000>/' target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-cmcc-rax3000m.dts
 
 # 添加第三方应用
 mkdir kiddin9
