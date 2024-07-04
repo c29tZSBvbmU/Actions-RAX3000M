@@ -184,7 +184,7 @@ mkdir ./istore/quickstart
 #cp -rf ../kiddin9/luci-lib-taskd/* luci-lib-taskd
 #cp -rf ../kiddin9/luci-lib-xterm/* luci-lib-xterm
 #cp -rf ../kiddin9/luci-app-store/* luci-app-store
-cp -rf ../kiddin9/luci-app-store/src/key-build.pub ./luci-app-store/src/
+cp -rf ../kiddin9/luci-app-store/src/key-build.pub ./istore/luci-app-store/luci/luci-app-store/src/
 #cp -rf ../kiddin9/quickstart/* quickstart
 cp -rf ../kiddin9/quickstart/* ../package/istore/quickstart
 #cp -rf ../kiddin9/luci-app-quickstart/* luci-app-quickstart
