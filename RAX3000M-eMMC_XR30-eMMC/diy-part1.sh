@@ -35,6 +35,11 @@ pushd MyConfig
 git clone --depth=1 https://github.com/Siriling/OpenWRT-MyConfig .
 popd
 
+mkdir Modemfeed
+pushd Modemfeed
+git clone --depth=1 https://github.com/koshev-msk/modemfeed .
+popd
+
 # mkdir package/community
 pushd package
 
@@ -179,4 +184,10 @@ cp -rf ../MyConfig/configs/istoreos/general/applications/luci-app-sms-tool/* luc
 mkdir luci-app-modem
 cp -rf ../Modem-Support/luci-app-modem/* luci-app-modem
 sed -i "/kmod-pcie_mhi/d" luci-app-modem/Makefile
+
+#fm350 老毛子拨号
+mkdir luci-proto-fm350
+mkdir fm350-modem
+cp -rf ../Modemfeed/luci/protocols/luci-proto-fm350/* luci-proto-fm350
+cp -rf ../Modemfeed/packages/net/fm350-modem/* fm350-modem
 popd
