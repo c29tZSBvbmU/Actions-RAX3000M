@@ -19,15 +19,15 @@ on:
       Tempoary_IP:
         description: '固件 IP 地址 [可选]'
         default: ''
+      ssh:
+        description: 'SSH connection to Actions'
+        required: false
+        default: 'false'
       EEPROM:
         description: 'Use nx30pro eeprom'
         required: false
         default: true
         type: boolean
-      ssh:
-        description: 'SSH connection to Actions'
-        required: false
-        default: 'false'
       APP_MTK:
         description: 'Use luci-app-mtk wifi config'
         required: true
