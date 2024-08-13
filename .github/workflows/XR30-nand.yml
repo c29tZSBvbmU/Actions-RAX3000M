@@ -24,12 +24,12 @@ on:
         required: false
         default: 'false'
       EEPROM:
-        description: 'Use nx30pro eeprom'
+        description: '使用nx30pro高功率WiFi eeprom'
         required: false
         default: true
         type: boolean
       APP_MTK:
-        description: 'Use luci-app-mtk wifi config'
+        description: '添加 luci-app-mtk WiFi设置'
         required: true
         default: false
         type: boolean
