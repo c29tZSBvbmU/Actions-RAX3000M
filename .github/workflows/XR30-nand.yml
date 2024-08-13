@@ -19,10 +19,20 @@ on:
       Tempoary_IP:
         description: '固件 IP 地址 [可选]'
         default: ''
+      EEPROM:
+        description: 'Use nx30pro eeprom'
+        required: false
+        default: true
+        type: boolean
       ssh:
         description: 'SSH connection to Actions'
         required: false
         default: 'false'
+      APP_MTK:
+        description: 'Use luci-app-mtk wifi config'
+        required: true
+        default: false
+        type: boolean
 
 #release发布触发开始编译(只是一个触发条件,不会发布的,又麻烦,没卵用,不用研究) 
       release:
@@ -53,6 +63,7 @@ env:
   CONFIG_FILE: XR30-nand/.config                            #配置文件（可SSH远程定制固件插件，也可在本地提取配置粘贴到此文件）
   DIY_P1_SH: XR30-nand/diy-part1.sh                            #自定义执行文件
   DIY_P2_SH: XR30-nand/diy-part2.sh                            #自定义执行文件
+  EEPROM: XR30-nand/nx30pro_eeprom.bin                  #nx30pro的高功率eeprom
   UPLOAD_BIN_DIR: true                               #上传【bin文件夹】到github空间（true=开启）（false=关闭）
   UPLOAD_FIRMWARE: true                              #上传固件到github空间（true=开启）（false=关闭）
   UPLOAD_COWTRANSFER: false                          #上传固件到到【奶牛快传】（true=开启）（false=关闭）   
@@ -126,7 +137,33 @@ jobs:
         chmod +x $DIY_P2_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
-
+        
+    - name: 使用nx30pro的高功率eeprom
+      if: github.event.inputs.EEPROM == 'true'
+      run: |
+        cp $EEPROM openwrt/package/mtk/drivers/mt_wifi/files/mt7981-default-eeprom/MT7981_iPAiLNA_EEPROM.bin
+        cd openwrt
+        ## 如果MAC没有修复则单独固定WiFi MAC
+        if sed -n '/rax3000m/,/;;/p' target/linux/mediatek/mt7981/base-files/etc/board.d/02_network | grep -q 'lan_mac=$(mmc_get_mac_binary factory 0x24)'; then
+        ## 创建一个辅助文件。文件内容是写入MAC地址到dat文件，固定wifi MAC地址
+        echo -e "\t\tlocal wifi0_mac=\"\$(mmc_get_mac_binary factory 0x04)\"
+        \t\tsed -i \"/^MacAddress=.*/ {s/.*/MacAddress=\$wifi0_mac/;b;}; \\\$aMacAddress=\$wifi0_mac\" /etc/wireless/mediatek/mt7981.dbdc.b0.dat
+        \t\tlocal wifi1_mac=\"\$(macaddr_setbit_la \$wifi0_mac)\"
+        \t\tsed -i \"/^MacAddress=.*/ {s/.*/MacAddress=\$wifi1_mac/;b;}; \\\$aMacAddress=\$wifi1_mac\" /etc/wireless/mediatek/mt7981.dbdc.b1.dat" > temp_insert.txt
+        ## 将文本内容写入02_network
+        sed -i '/mediatek_setup_macs()/,/\};/ {/cmcc,rax3000m-emmc)/ {n;n;n;r temp_insert.txt
+        }}' target/linux/mediatek/mt7981/base-files/etc/board.d/02_network
+        fi
+        
+    - name: 使用luci-app-mtk无线配置
+      if: github.event.inputs.APP_MTK == 'true'
+      run: |
+        cd openwrt
+        sed -i 's/CONFIG_PACKAGE_luci-app-mtwifi-cfg=y/CONFIG_PACKAGE_luci-app-mtk=y/g' .config
+        sed -i 's/CONFIG_PACKAGE_luci-i18n-mtwifi-cfg-zh-cn=y/CONFIG_PACKAGE_luci-i18n-mtk-zh-cn=y/g' .config
+        sed -i 's/CONFIG_PACKAGE_mtwifi-cfg=y/CONFIG_PACKAGE_wifi-profile=y/g' .config
+        sed -i 's/CONFIG_PACKAGE_lua-cjson=y/CONFIG_WIFI_NORMAL_SETTING=y/g' .config
+       
     - name: SSH远程连接服务器配置固件  SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
       if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
