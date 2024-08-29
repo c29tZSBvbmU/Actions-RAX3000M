@@ -10,7 +10,7 @@
 #=================================================
 #
 
-name: XR30-nand-hanwckf
+name: close-xr30-hanwckf
 
 on:
   repository_dispatch:
