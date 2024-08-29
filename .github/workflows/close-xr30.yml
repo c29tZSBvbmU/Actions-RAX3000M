@@ -33,6 +33,11 @@ on:
         required: false
         default: false
         type: boolean
+      CACHEWRTBUILD_SWITCH:
+        description: '缓存加速编译'
+        required: false
+        default: 'true'
+        type: boolean
       MAC_ORDER:
         description: 'Use the original MAC address order'
         required: false
