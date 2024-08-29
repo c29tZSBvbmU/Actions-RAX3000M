@@ -47,7 +47,8 @@ on:
       release:
         description: 'Release firmware'
         required: false
-        default: 'false'
+        default: false
+        type: boolean
 #编辑任意指定文件触发开始编译(去掉下面5个#开启,最下面一行是指定修改什么文件就触发编译,我现在是修改mod.config文件触发)  
   push:                               # push 操作
     branches:                         # 分支
