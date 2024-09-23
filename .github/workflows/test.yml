@@ -10,7 +10,7 @@
 #=================================================
 #
 
-name: close-xr30-hanwckf
+name: rax3000m-test-lede
 
 on:
   repository_dispatch:
