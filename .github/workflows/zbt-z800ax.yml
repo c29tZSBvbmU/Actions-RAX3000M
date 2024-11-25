@@ -47,7 +47,7 @@ env:
   REPO_URL: https://github.com/c29tZSBvbmU/openwrt-diy           #编译固件源码链接（请勿修改）
   REPO_BRANCH: main                            #源码链接的分支（请勿修改）
   FEEDS_CONF: lede.feeds.conf.default              
-  CONFIG_FILE: test/.config                            #配置文件（可SSH远程定制固件插件，也可在本地提取配置粘贴到此文件）
+  CONFIG_FILE: zbt-z800ax/.config                            #配置文件（可SSH远程定制固件插件，也可在本地提取配置粘贴到此文件）
   DIY_P1_SH: close-xr30/diy-part1.sh                            #自定义执行文件
   DIY_P2_SH: close-xr30/diy-part2.sh                            #自定义执行文件
   EEPROM: close-xr30/nx30pro_eeprom.bin                  #nx30pro的高功率eeprom
@@ -59,6 +59,8 @@ env:
   DELETE_OLD_WORKFLOW: false                          # 删除早期的 workflow 任务
   DELETE_OLD_RELEASE: true                           # 删除早期的 Releases 任务
   TZ: Asia/Shanghai                                  #时区 亚洲/上海
+  CACHEWRTBUILD_SWITCH: 'true'  # 启用缓存加速
+  TARGET_PROFILE: 'zbt-z800ax'  # 根据实际目标配置设备型号
 ### 结束
 
 jobs:
@@ -133,7 +135,7 @@ jobs:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
   
     - name: 缓存加速
-      if: github.event.inputs.cache_acceleration == true
+      if: env.CACHEWRTBUILD_SWITCH == 'true' && github.event.inputs.cache_acceleration == true
       uses: stupidloud/cachewrtbuild@main
       with:
         ccache: 'true'
