@@ -16,11 +16,13 @@ on:
   repository_dispatch:
   workflow_dispatch:
     inputs:
-      Tempoary_IP:
-        description: '固件 IP 地址 [可选]'
-        default: ''
       ssh:
         description: 'SSH connection to Actions'
+        required: false
+        default: false
+        type: boolean
+      cache_acceleration:
+        description: '启用缓存加速？'
         required: false
         default: false
         type: boolean
@@ -43,7 +45,7 @@ env:
   OPENWRT_NAME: fa556-test
   UPLOAD_TAG_NAME: fa556-test
   REPO_URL: https://github.com/c29tZSBvbmU/openwrt-diy           #编译固件源码链接（请勿修改）
-  REPO_BRANCH: master                                #源码链接的分支（请勿修改）
+  REPO_BRANCH: main                            #源码链接的分支（请勿修改）
   FEEDS_CONF: lede.feeds.conf.default              
   CONFIG_FILE: test/.config                            #配置文件（可SSH远程定制固件插件，也可在本地提取配置粘贴到此文件）
   DIY_P1_SH: close-xr30/diy-part1.sh                            #自定义执行文件
@@ -123,26 +125,15 @@ jobs:
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
         
-    - name: 使用nx30pro的高功率eeprom
-      if: github.event.inputs.EEPROM == 'true'
-      run: |
-        cp $EEPROM openwrt/package/mtk/drivers/mt_wifi/files/mt7981-default-eeprom/MT7981_iPAiLNA_EEPROM.bin
-        cd openwrt
-        ## 如果MAC没有修复则单独固定WiFi MAC
-        if sed -n '/rax3000m/,/;;/p' target/linux/mediatek/mt7981/base-files/etc/board.d/02_network | grep -q 'lan_mac=$(mmc_get_mac_binary factory 0x24)'; then
-        ## 创建一个辅助文件。文件内容是写入MAC地址到dat文件，固定wifi MAC地址
-        echo -e "\t\tlocal wifi0_mac=\"\$(mmc_get_mac_binary factory 0x04)\"
-        \t\tsed -i \"/^MacAddress=.*/ {s/.*/MacAddress=\$wifi0_mac/;b;}; \\\$aMacAddress=\$wifi0_mac\" /etc/wireless/mediatek/mt7981.dbdc.b0.dat
-        \t\tlocal wifi1_mac=\"\$(macaddr_setbit_la \$wifi0_mac)\"
-        \t\tsed -i \"/^MacAddress=.*/ {s/.*/MacAddress=\$wifi1_mac/;b;}; \\\$aMacAddress=\$wifi1_mac\" /etc/wireless/mediatek/mt7981.dbdc.b1.dat" > temp_insert.txt
-        ## 将文本内容写入02_network
-        sed -i '/mediatek_setup_macs()/,/\};/ {/cmcc,rax3000m-emmc)/ {n;n;n;r temp_insert.txt
-        }}' target/linux/mediatek/mt7981/base-files/etc/board.d/02_network
-        fi
-        
-        
+    - name: SSH远程连接服务器配置固件  SSH connection to Actions
+      uses: P3TERX/ssh2actions@v1.0.0
+      if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
+      env:
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+  
     - name: 缓存加速
-      if: env.CACHEWRTBUILD_SWITCH == 'true'
+      if: github.event.inputs.cache_acceleration == true
       uses: stupidloud/cachewrtbuild@main
       with:
         ccache: 'true'
