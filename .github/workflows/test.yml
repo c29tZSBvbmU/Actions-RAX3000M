@@ -22,31 +22,6 @@ on:
       ssh:
         description: 'SSH connection to Actions'
         required: false
-        default: 'false'
-      EEPROM:
-        description: '使用nx30pro高功率WiFi eeprom'
-        required: false
-        default: false
-        type: boolean
-      APP_MTK:
-        description: '添加 luci-app-mtk WiFi设置'
-        required: false
-        default: false
-        type: boolean
-      CACHEWRTBUILD_SWITCH:
-        description: '缓存加速编译'
-        required: false
-        default: 'true'
-        type: boolean
-      MAC_ORDER:
-        description: 'Use the original MAC address order'
-        required: false
-        default: false
-        type: boolean
-#release发布触发开始编译(只是一个触发条件,不会发布的,又麻烦,没卵用,不用研究) 
-      release:
-        description: 'Release firmware'
-        required: false
         default: false
         type: boolean
 #编辑任意指定文件触发开始编译(去掉下面5个#开启,最下面一行是指定修改什么文件就触发编译,我现在是修改mod.config文件触发)  
@@ -67,7 +42,7 @@ on:
 env:
   OPENWRT_NAME: hanwckf
   UPLOAD_TAG_NAME: test
-  REPO_URL: https://github.com/coolsnowwolf/lede           #编译固件源码链接（请勿修改）
+  REPO_URL: https://github.com/c29tZSBvbmU/immortalwrt-ipq           #编译固件源码链接（请勿修改）
   REPO_BRANCH: master                                #源码链接的分支（请勿修改）
   FEEDS_CONF: lede.feeds.conf.default              
   CONFIG_FILE: test/.config                            #配置文件（可SSH远程定制固件插件，也可在本地提取配置粘贴到此文件）
