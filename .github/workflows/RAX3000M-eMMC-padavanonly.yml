@@ -109,7 +109,6 @@ jobs:
         [ -e files ] && mv files openwrt/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         cp -f RAX3000M-eMMC_XR30-eMMC/mt7981-cmcc-rax3000m.dtsi openwrt/target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-cmcc-rax3000m.dtsi
-        cp -f RAX3000M-eMMC_XR30-eMMC/qmi_wwan_q.c openwrt/package/quectel_QMI_WWAN/src/qmi_wwan_q.c
         chmod +x $DIY_P2_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH

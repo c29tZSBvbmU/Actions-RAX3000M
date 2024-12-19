@@ -40,12 +40,12 @@
 # 用WinSCP连接openwrt，在/www/luci-static/argon里面创建background文件夹（如果本身就有background就不需要创建）来存放jpg png gif格式图片可以自定义登陆界面，gif图片为动态登陆界面
 
 ### 修改DTS的ubi为490MB的0x1ea00000>
-sed -i 's/reg = <0x580000 0x7200000>/reg = <0x580000 0x1ea00000>/' target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-cmcc-rax3000m.dts
+####sed -i 's/reg = <0x580000 0x7200000>/reg = <0x580000 0x1ea00000>/' target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-cmcc-rax3000m.dts
 
 # 添加第三方应用
 mkdir kiddin9
 pushd kiddin9
-git clone --depth=1 https://github.com/kiddin9/openwrt-packages .
+git clone --depth=1 https://github.com/kiddin9/kwrt-packages .
 popd
 
 mkdir Modem-Support
@@ -61,11 +61,6 @@ popd
 mkdir Modemfeed
 pushd Modemfeed
 git clone --depth=1 https://github.com/koshev-msk/modemfeed .
-popd
-
-mkdir Modem
-pushd Modem
-git clone --depth=1 https://github.com/li60240/modem .
 popd
 
 # mkdir package/community
@@ -205,8 +200,8 @@ mkdir meig-cm
 cp -rf ../Modem-Support/quectel_QMI_WWAN/* quectel_QMI_WWAN
 cp -rf ../Modem-Support/fibocom_QMI_WWAN/* fibocom_QMI_WWAN
 cp -rf ../Modem-Support/quectel_cm_5G/* quectel_cm_5G
-cp -rf ../Modem/meig-cm/* meig-cm
-cp -rf ../Modem/meig_QMI_WWAN/* meig_QMI_WWAN
+cp -rf ../Modem-Support/meig-cm/* meig-cm
+cp -rf ../Modem-Support/meig_QMI_WWAN/* meig_QMI_WWAN
 # cp -rf ../Modem-Support/quectel_MHI/* quectel_MHI
 # cp -rf ../Modem-Support/luci-app-hypermodem/* luci-app-hypermodem
 
