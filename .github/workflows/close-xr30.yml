@@ -213,6 +213,31 @@ jobs:
         find dl -size -1024c -exec rm -f {} \;
         cat .config
 
+    - name: 设置通用缓存
+      id: cache-common
+      uses: actions/cache@v3
+      with:
+        path: |
+          dl
+          staging_dir
+          toolchain
+        key: ${{ runner.os }}-openwrt-common
+
+    - name: 设置设备缓存
+      id: cache-target
+      uses: actions/cache@v3
+      with:
+        path: build_dir/target-*
+        key: ${{ runner.os }}-openwrt-${{ hashFiles('target/linux/**', '.config') }}
+        restore-keys: |
+          ${{ runner.os }}-openwrt-
+
+    - name: 显示缓存命中情况
+      run: |
+        echo "通用缓存命中: ${{ steps.cache-common.outputs.cache-hit }}"
+        echo "设备缓存命中: ${{ steps.cache-target.outputs.cache-hit }}"
+        echo "使用的缓存 Key: ${{ steps.cache-target.outputs.cache-primary-key }}"
+
     - name: 开始编译固件  Compile the firmware
       id: compile
       run: |
