@@ -40,10 +40,10 @@
 # 用WinSCP连接openwrt，在/www/luci-static/argon里面创建background文件夹（如果本身就有background就不需要创建）来存放jpg png gif格式图片可以自定义登陆界面，gif图片为动态登陆界面
 
 # 添加第三方应用
-mkdir kiddin9
-pushd kiddin9
-git clone --depth=1 https://github.com/kiddin9/openwrt-packages .
-popd
+#mkdir kiddin9
+#pushd kiddin9
+#git clone --depth=1 https://github.com/kiddin9/openwrt-packages .
+#popd
 
 mkdir Modem-Support
 pushd Modem-Support
@@ -57,7 +57,7 @@ popd
 
 mkdir Modemfeed
 pushd Modemfeed
-git clone --depth=1 https://github.com/koshev-msk/modemfeed .
+git clone --depth=1 https://github.com/FUjr/modem_feeds.git .
 popd
 
 # mkdir package/community
@@ -152,7 +152,7 @@ sed -i 's/+PACKAGE_$(PKG_NAME)_INCLUDE_binary:adguardhome//' luci-app-adguardhom
 # 其他
 #Socat
 mkdir luci-app-socat
-cp -rf ../kiddin9/luci-app-socat/* luci-app-socat
+#cp -rf ../kiddin9/luci-app-socat/* luci-app-socat
 #Unblockneteasemusic
 # mkdir UnblockNeteaseMusic
 # mkdir luci-app-unblockneteasemusic
@@ -182,35 +182,35 @@ cp -rf ../kiddin9/quickstart/* quickstart
 cp -rf ../kiddin9/luci-app-quickstart/* luci-app-quickstart
 
 # 5G通信模组拨号工具
-mkdir quectel_QMI_WWAN
-mkdir fibocom_QMI_WWAN
-mkdir quectel_cm_5G
-mkdir fibocom-dial
+#mkdir quectel_QMI_WWAN
+#mkdir fibocom_QMI_WWAN
+#mkdir quectel_cm_5G
+#mkdir fibocom-dial
 # mkdir quectel_MHI
 # mkdir luci-app-hypermodem
-cp -rf ../Modem-Support/quectel_QMI_WWAN/* quectel_QMI_WWAN
-cp -rf ../Modem-Support/fibocom_QMI_WWAN/* fibocom_QMI_WWAN
-cp -rf ../Modem-Support/quectel_cm_5G/* quectel_cm_5G
-cp -rf ../Modem-Support/fibocom-dial/* fibocom-dial
+#cp -rf ../Modem-Support/quectel_QMI_WWAN/* quectel_QMI_WWAN
+#cp -rf ../Modem-Support/fibocom_QMI_WWAN/* fibocom_QMI_WWAN
+#cp -rf ../Modem-Support/quectel_cm_5G/* quectel_cm_5G
+#cp -rf ../Modem-Support/fibocom-dial/* fibocom-dial
 # cp -rf ../Modem-Support/quectel_MHI/* quectel_MHI
 # cp -rf ../Modem-Support/luci-app-hypermodem/* luci-app-hypermodem
 
 # 5G模组短信插件
-mkdir sms-tool
-mkdir luci-app-sms-tool
-cp -rf ../Modem-Support/sms-tool/* sms-tool
-cp -rf ../Modem-Support/luci-app-sms-tool/* luci-app-sms-tool
-cp -rf ../MyConfig/configs/istoreos/general/applications/luci-app-sms-tool/* luci-app-sms-tool
+#mkdir sms-tool
+#mkdir luci-app-sms-tool
+#cp -rf ../Modem-Support/sms-tool/* sms-tool
+#cp -rf ../Modem-Support/luci-app-sms-tool/* luci-app-sms-tool
+#cp -rf ../MyConfig/configs/istoreos/general/applications/luci-app-sms-tool/* luci-app-sms-tool
 
 # 5G模组管理插件+AT工具
-mkdir luci-app-modem
-cp -rf ../Modem-Support/luci-app-modem/* luci-app-modem
-sed -i "/kmod-pcie_mhi/d" luci-app-modem/Makefile
+#mkdir luci-app-modem
+#cp -rf ../Modem-Support/luci-app-modem/* luci-app-modem
+#sed -i "/kmod-pcie_mhi/d" luci-app-modem/Makefile
 
 #fm350 老毛子拨号
 #mkdir luci-proto-fm350
 #cp -rf ../Modemfeed/luci/protocols/luci-proto-fm350/* luci-proto-fm350
 
-mkdir fm350-modem
-cp -rf ../Modemfeed/packages/net/fm350-modem/* fm350-modem
-popd
+#mkdir fm350-modem
+#cp -rf ../Modemfeed/packages/net/fm350-modem/* fm350-modem
+#popd
