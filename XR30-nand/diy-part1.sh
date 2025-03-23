@@ -42,7 +42,7 @@
 # 添加第三方应用
 mkdir kiddin9
 pushd kiddin9
-git clone --depth=1 https://github.com/kiddin9/openwrt-packages .
+git clone --depth=1 https://github.com/kiddin9/kwrt-packages .
 popd
 
 mkdir Modem-Support
