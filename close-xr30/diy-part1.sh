@@ -40,10 +40,10 @@
 # 用WinSCP连接openwrt，在/www/luci-static/argon里面创建background文件夹（如果本身就有background就不需要创建）来存放jpg png gif格式图片可以自定义登陆界面，gif图片为动态登陆界面
 
 # 添加第三方应用
-#mkdir kiddin9
-#pushd kiddin9
-#git clone --depth=1 https://github.com/kiddin9/kwrt-packages .
-#popd
+mkdir kiddin9
+pushd kiddin9
+git clone --depth=1 https://github.com/kiddin9/kwrt-packages .
+popd
 
 mkdir Modem-Support
 pushd Modem-Support
