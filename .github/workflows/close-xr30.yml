@@ -221,12 +221,9 @@ jobs:
         # 尝试使用多线程编译
         echo "Attempting to compile with $(nproc) threads: make -j$(nproc)"
         make -j$(nproc) || (
-          # 如果多线程编译失败，尝试单线程编译
+          # 如果多线程编译失败，尝试 verbose 模式单线程编译
           echo "Multi-threaded compilation failed, attempting single-threaded compilation: make -j1"
-          make -j1 || (
-            # 如果单线程编译失败，尝试 verbose 模式单线程编译
-            echo "Single-threaded compilation failed, attempting verbose single-threaded compilation: make -j1 V=s"
-            make -j1 V=s
+          make -j1 V=s
           )
         )
         
