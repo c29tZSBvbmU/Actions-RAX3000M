@@ -26,6 +26,7 @@ sed -i '$a src-git modem https://github.com/FUjr/modem_feeds.git' feeds.conf.def
 sed -i '$a src-git 5GModemSupport https://github.com/Siriling/5G-Modem-Support.git' feeds.conf.default
 sed -i '$a src-git nas https://github.com/linkease/nas-packages.git' feeds.conf.default
 sed -i '$a src-git nas_luci https://github.com/linkease/nas-packages-luci.git' feeds.conf.default
+sed -i '$a src-git store https://github.com/linkease/istore.git;main' feeds.conf.default
 
 #内核版本是会随着源码更新而改变的，在coolsnowwolf/lede的源码查看最好，以X86机型为例，源码的target/linux/x86文件夹可以看到有几个内核版本，x86文件夹里Makefile可以查看源码正在使用内核版本
 #修改版本内核（下面两行代码前面有#为源码默认最新5.4内核,没#为4.19内核,默认修改X86的，其他机型L大源码那里target/linux查看，对应修改下面的路径就好）
