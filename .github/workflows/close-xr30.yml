@@ -202,17 +202,6 @@ jobs:
         ccache: 'true'
         mixkey: "${{ env.TARGET_PROFILE }}"
         prefix: ${{ github.workspace }}/openwrt
-        
-    - name: 下载软件包  Download package
-      id: package
-      run: |
-        cd openwrt
-        make defconfig
-        make download -j$(nproc)
-        find dl -size -1024c -exec ls -l {} \;
-        find dl -size -1024c -exec rm -f {} \;
-        cat .config
-
     - name: 设置通用缓存
       id: cache-common
       uses: actions/cache@v3
@@ -236,7 +225,17 @@ jobs:
       run: |
         echo "通用缓存命中: ${{ steps.cache-common.outputs.cache-hit }}"
         echo "设备缓存命中: ${{ steps.cache-target.outputs.cache-hit }}"
-        echo "使用的缓存 Key: ${{ steps.cache-target.outputs.cache-primary-key }}"
+        echo "使用的缓存 Key: ${{ steps.cache-target.outputs.cache-primary-key }}"    
+        
+    - name: 下载软件包  Download package
+      id: package
+      run: |
+        cd openwrt
+        make defconfig
+        make download -j$(nproc)
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+        cat .config
 
     - name: 开始编译固件  Compile the firmware
       id: compile
