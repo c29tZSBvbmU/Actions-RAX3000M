@@ -59,6 +59,11 @@ on:
         required: true
         default: false
         type: boolean
+      CACHEWRTBUILD_SWITCH:
+        description: '缓存加速编译'
+        required: false
+        default: 'true'
+        type: boolean
 #release发布触发开始编译(只是一个触发条件,不会发布的,又麻烦,没卵用,不用研究) 
       release:
         description: 'Release firmware'
