@@ -1,6 +1,6 @@
 #=================================================
-# 自动构建 OpenWrt RAX3000M
-# https://github.com/ytalm/OpenWrt-RAX3000M
+# 自动构建 OpenWrt xr30
+# https://github.com/ytalm/OpenWrt-xr30
 # Description: Build OpenWrt using GitHub Actions
 # Lisence: This is free software, licensed under the MIT License
 # Author: flyheart
@@ -154,14 +154,14 @@ jobs:
         cp $EEPROM openwrt/package/mtk/drivers/mt_wifi/files/mt7981-default-eeprom/MT7981_iPAiLNA_EEPROM.bin
         cd openwrt
         ## 如果MAC没有修复则单独固定WiFi MAC
-        if sed -n '/rax3000m/,/;;/p' target/linux/mediatek/mt7981/base-files/etc/board.d/02_network | grep -q 'lan_mac=$(mmc_get_mac_binary factory 0x24)'; then
+        if sed -n '/xr30/,/;;/p' target/linux/mediatek/mt7981/base-files/etc/board.d/02_network | grep -q 'lan_mac=$(mmc_get_mac_binary factory 0x24)'; then
         ## 创建一个辅助文件。文件内容是写入MAC地址到dat文件，固定wifi MAC地址
         echo -e "\t\tlocal wifi0_mac=\"\$(mmc_get_mac_binary factory 0x04)\"
         \t\tsed -i \"/^MacAddress=.*/ {s/.*/MacAddress=\$wifi0_mac/;b;}; \\\$aMacAddress=\$wifi0_mac\" /etc/wireless/mediatek/mt7981.dbdc.b0.dat
         \t\tlocal wifi1_mac=\"\$(macaddr_setbit_la \$wifi0_mac)\"
         \t\tsed -i \"/^MacAddress=.*/ {s/.*/MacAddress=\$wifi1_mac/;b;}; \\\$aMacAddress=\$wifi1_mac\" /etc/wireless/mediatek/mt7981.dbdc.b1.dat" > temp_insert.txt
         ## 将文本内容写入02_network
-        sed -i '/mediatek_setup_macs()/,/\};/ {/cmcc,rax3000m-emmc)/ {n;n;n;r temp_insert.txt
+        sed -i '/mediatek_setup_macs()/,/\};/ {/cmcc,xr30)/ {n;n;n;r temp_insert.txt
         }}' target/linux/mediatek/mt7981/base-files/etc/board.d/02_network
         fi
         
@@ -179,14 +179,14 @@ jobs:
       run: |
         cd openwrt
         ## 调换lan、wan的MAC地址
-        sed -i '/cmcc,rax3000m-emmc)/{n; s/lan_mac=$(mmc_get_mac_binary factory 0x24)/lan_mac=$(mmc_get_mac_binary factory 0x2A)/; n; s/wan_mac=$(mmc_get_mac_binary factory 0x2a)/wan_mac=$(mmc_get_mac_binary factory 0x24)/}' target/linux/mediatek/mt7981/base-files/etc/board.d/02_network
+        sed -i '/cmcc,xr30)/{n; s/lan_mac=$(mmc_get_mac_binary factory 0x24)/lan_mac=$(mmc_get_mac_binary factory 0x2A)/; n; s/wan_mac=$(mmc_get_mac_binary factory 0x2a)/wan_mac=$(mmc_get_mac_binary factory 0x24)/}' target/linux/mediatek/mt7981/base-files/etc/board.d/02_network
         ## 创建一个辅助文件。文件内容是写入MAC地址到dat文件，固定wifi MAC地址
         echo -e "\t\tlocal wifi0_mac=\"\$(mmc_get_mac_binary factory 0x04)\"
         \t\tsed -i \"/^MacAddress=.*/ {s/.*/MacAddress=\$wifi0_mac/;b;}; \\\$aMacAddress=\$wifi0_mac\" /etc/wireless/mediatek/mt7981.dbdc.b0.dat
         \t\tlocal wifi1_mac=\"\$(macaddr_setbit_la \$wifi0_mac)\"
         \t\tsed -i \"/^MacAddress=.*/ {s/.*/MacAddress=\$wifi1_mac/;b;}; \\\$aMacAddress=\$wifi1_mac\" /etc/wireless/mediatek/mt7981.dbdc.b1.dat" > temp_insert.txt
         ## 将文本内容写入02_network
-        sed -i '/mediatek_setup_macs()/,/exit/ {/cmcc,rax3000m-emmc)/ {n;n;n;r temp_insert.txt
+        sed -i '/mediatek_setup_macs()/,/exit/ {/cmcc,xr30)/ {n;n;n;r temp_insert.txt
         }}' target/linux/mediatek/mt7981/base-files/etc/board.d/02_network 
     - name: SSH远程连接服务器配置固件  SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
@@ -236,7 +236,14 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
         cat .config
-
+    - name: 检查 EEPROM 文件是否存在
+      if: ${{ github.event.inputs.EEPROM == 'true' }}
+      run: |
+        EEPROM_PATH="package/eeprom_file"  # 请根据实际路径修改
+        if [ ! -f "$EEPROM_PATH" ]; then
+          echo "❌ EEPROM 文件不存在，路径：$EEPROM_PATH"
+          exit 1
+        fi
     - name: 开始编译固件  Compile the firmware
       id: compile
       run: |
