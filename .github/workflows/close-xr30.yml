@@ -70,7 +70,7 @@ env:
   # REPO_BRANCH: openwrt-21.02
   REPO_BRANCH: mt6000
   FEEDS_CONF: close-xr30/feeds.conf.default
-  CONFIG_FILE: close-xr30/.mtwifi-cfg.config
+  CONFIG_FILE: close-xr30/.config
   DIY_P1_SH: close-xr30/diy-part1.sh
   DIY_P2_SH: close-xr30/diy-part2.sh
   SSH_ACTIONS: false
