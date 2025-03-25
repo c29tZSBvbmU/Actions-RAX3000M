@@ -86,7 +86,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - name:  检验结束  Checkout                         # 1.导入主分支
@@ -149,7 +149,7 @@ jobs:
         $GITHUB_WORKSPACE/$DIY_P2_SH
         
     - name: 使用nx30pro的高功率eeprom
-      if: github.event.inputs.EEPROM == 'true'
+      if: ${{ github.event.inputs.EEPROM == 'true' }}
       run: |
         cp $EEPROM openwrt/package/mtk/drivers/mt_wifi/files/mt7981-default-eeprom/MT7981_iPAiLNA_EEPROM.bin
         cd openwrt
@@ -216,16 +216,24 @@ jobs:
       id: cache-target
       uses: actions/cache@v3
       with:
-        path: build_dir/target-*
+        path: |
+          build_dir/target-*
+          staging_dir
         key: ${{ runner.os }}-openwrt-${{ hashFiles('target/linux/**', '.config') }}
         restore-keys: |
+          ${{ runner.os }}-openwrt-${{ env.OPENWRT_NAME }}-
           ${{ runner.os }}-openwrt-
 
     - name: 显示缓存命中情况
       run: |
         echo "通用缓存命中: ${{ steps.cache-common.outputs.cache-hit }}"
         echo "设备缓存命中: ${{ steps.cache-target.outputs.cache-hit }}"
-        echo "使用的缓存 Key: ${{ steps.cache-target.outputs.cache-primary-key }}"    
+        echo "使用的缓存 Key: ${{ steps.cache-target.outputs.cache-primary-key }}" 
+        
+    - name: 检查缓存路径1
+      run: |
+        ls -lah dl || echo "dl 不存在"
+        ls -lah build_dir || echo "build_dir 不存在"    
         
     - name: 下载软件包  Download package
       id: package
@@ -258,7 +266,7 @@ jobs:
           make -j1 V=s
           )
         
-        echo "::set-output name=status::success"
+        echo "status=success" >> $GITHUB_OUTPUT
     
         sed -nE 's/.*(192.168\.[0-9]+\.[0-9]+).*/\1/p' package/base-files/files/bin/config_generate | head -n 1 > IP_ADDR
         [ -s IP_ADDR ] && echo "IP_ADDR=$(cat IP_ADDR)" >> $GITHUB_ENV
@@ -280,6 +288,11 @@ jobs:
         echo "FILE_DATE=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
     
+    - name: 检查缓存路径2
+      run: |
+        ls -lah dl || echo "dl 不存在"
+        ls -lah build_dir || echo "build_dir 不存在"
+        
     - name: 检查github储存空间情况  Check space usage
       if: (!cancelled())
       run: df -hT
