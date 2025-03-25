@@ -222,9 +222,9 @@ jobs:
       uses: actions/cache@v3
       with:
         path: |
-          dl
-          staging_dir
-          toolchain
+          openwrt/dl
+          openwrt/staging_dir
+          openwrt/toolchain
         key: ${{ runner.os }}-openwrt-common
 
     - name: 设置设备缓存
@@ -232,8 +232,8 @@ jobs:
       uses: actions/cache@v3
       with:
         path: |
-          build_dir/target-*
-          staging_dir
+          openwrt/build_dir/target-*
+          openwrt/staging_dir
         key: ${{ runner.os }}-openwrt-${{ hashFiles('target/linux/**', '.config') }}
         restore-keys: |
           ${{ runner.os }}-openwrt-${{ env.OPENWRT_NAME }}-
@@ -247,8 +247,8 @@ jobs:
         
     - name: 检查缓存路径1
       run: |
-        ls -lah dl || echo "dl 不存在"
-        ls -lah build_dir || echo "build_dir 不存在"  
+        ls -lah openwrt/dl || echo "dl 不存在"
+        ls -lah openwrt/build_dir || echo "build_dir 不存在"  
 
     - name: 下载安装包
       id: package
