@@ -1,14 +1,16 @@
-#
-# Copyright (c) 2019-2020 P3TERX <https://p3terx.com>
-#
-# This is free software, licensed under the MIT License.
-# See /LICENSE for more information.
-#
-# https://github.com/P3TERX/Actions-OpenWrt
+#=================================================
+# 自动构建 OpenWrt xr30
+# https://github.com/ytalm/OpenWrt-xr30
 # Description: Build OpenWrt using GitHub Actions
+# Lisence: This is free software, licensed under the MIT License
+# Author: flyheart
+# 感谢p3terx大神的一键编译脚本
+# https://github.com/P3TERX/Actions-OpenWrt
+# Blog: https://p3terx.com
+#=================================================
 #
-###############手动修改##############
-name: close-xr30
+
+name: close-xr30-hanwckf
 
 on:
   repository_dispatch:
@@ -38,14 +40,18 @@ on:
         - v7.6.6.1-fw-20230717
         - v7.6.6.1-fw-20231024
         - v7.6.6.1-fw-20240823
+      ssh:
+        description: 'SSH connection to Actions'
+        required: false
+        default: 'false'
       EEPROM:
-        description: '使用nx30pro高功率WiFi eeprom并修复WFIF MAC'
-        required: true
-        default: true
+        description: '使用nx30pro的高功率eeprom并固定WiFi MAC地址'
+        required: false
+        default: false
         type: boolean
       APP_MTK:
-        description: '使用 luci-app-mtk WiFi设置'
-        required: true
+        description: '添加 luci-app-mtk WiFi设置'
+        required: false
         default: false
         type: boolean
       DOCKERMAN:
@@ -53,59 +59,68 @@ on:
         required: true
         default: false
         type: boolean
-      ssh:
-        description: 'SSH connection to Actions'
+#release发布触发开始编译(只是一个触发条件,不会发布的,又麻烦,没卵用,不用研究) 
+      release:
+        description: 'Release firmware'
         required: false
-        default: 'false'
-#  schedule:
-#    - cron: 0 16 * * *
+        default: false
+        type: boolean
+#编辑任意指定文件触发开始编译(去掉下面5个#开启,最下面一行是指定修改什么文件就触发编译,我现在是修改mod.config文件触发)  
+  push:                               # push 操作
+    branches:                         # 分支
+      - master                        # 主分支
+
+#定时触发开始编译(开启定时编译请先关闭SSH,要不然SSH没人管,会卡SSH编译失败)
+  schedule:                           # 时间表
+    - cron: 0 4 28 * *                 # 每月28日国际时间4点，北京时间中午12点执行(北京+8)
+#          分 时 日 月 周5  
+#点☆Star触发开始编译  
+  watch:                              # 监视操作
+    types: started                    # 点击 star 之后
+
+### 环境变量设置
 
 env:
-  ###############手动修改##############
-  ##因为是两个设备，所以手动设置上传时候的打包名称和tag名称UPLOAD_TAG_NAME
   OPENWRT_NAME: hanwckf
-  UPLOAD_TAG_NAME: XR30-nand
-  REPO_URL: https://github.com/hanwckf/immortalwrt-mt798x
-  #REPO_URL: https://github.com/zheshifandian/immortalwrt-mt798x
-  REPO_BRANCH: openwrt-21.02
- # REPO_BRANCH: mt6000
-  FEEDS_CONF: close-xr30/feeds.conf.default
-  CONFIG_FILE: close-xr30/.config
-  DIY_P1_SH: close-xr30/diy-part1.sh
-  DIY_P2_SH: close-xr30/diy-part2.sh
-  SSH_ACTIONS: false
-  UPLOAD_FIRMWARE: true
-  UPLOAD_RELEASE: true
-  TZ: Asia/Shanghai
+  UPLOAD_TAG_NAME: Close-XR30
+  REPO_URL: https://github.com/hanwckf/immortalwrt-mt798x           #编译固件源码链接（请勿修改）
+  REPO_BRANCH: openwrt-21.02                                #源码链接的分支（请勿修改）
+  FEEDS_CONF: feeds.conf.default               
+  CONFIG_FILE: close-xr30/.config                            #配置文件（可SSH远程定制固件插件，也可在本地提取配置粘贴到此文件）
+  DIY_P1_SH: close-xr30/diy-part1.sh                            #自定义执行文件
+  DIY_P2_SH: close-xr30/diy-part2.sh                            #自定义执行文件
+  EEPROM: close-xr30/nx30pro_eeprom.bin                  #nx30pro的高功率eeprom
+  UPLOAD_BIN_DIR: true                               #上传【bin文件夹】到github空间（true=开启）（false=关闭）
+  UPLOAD_FIRMWARE: true                              #上传固件到github空间（true=开启）（false=关闭）
+  UPLOAD_COWTRANSFER: false                          #上传固件到到【奶牛快传】（true=开启）（false=关闭）   
+  UPLOAD_WETRANSFER: false                             #上传固件到到【WETRANSFER】（true=开启）（false=关闭）
+  UPLOAD_RELEASE: true                              # 上传固件到 Github Releases
+  DELETE_OLD_WORKFLOW: false                          # 删除早期的 workflow 任务
+  DELETE_OLD_RELEASE: true                           # 删除早期的 Releases 任务
+  TZ: Asia/Shanghai                                  #时区 亚洲/上海
+### 结束
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-          matrix:
-            os:
-              - ubuntu-22.04
-
-    permissions:
-      contents: write
+    runs-on: ubuntu-22.04
 
     steps:
-    - name: 检查项目分支
+    - name:  检验结束  Checkout                         # 1.导入主分支
       uses: actions/checkout@main
 
-    - name: 初始化编译环境
+    - name: 初始化编译环境  Initialization environment                # 2.初始化环境
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
         sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
         sudo -E apt-get -qq update
-        sudo -E apt-get -qq install $(cat $GITHUB_WORKSPACE/depends/${{ matrix.os }})
+        sudo -E apt-get -qq install $(curl -fsSL git.io/depends-ubuntu-2004)
         sudo -E apt-get -qq autoremove --purge
         sudo -E apt-get -qq clean
         sudo timedatectl set-timezone "$TZ"
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
-
+        
     - name: 清理磁盘空间(Ubuntu)
       uses: jlumbroso/free-disk-space@main
       with:
@@ -120,39 +135,34 @@ jobs:
         haskell: false
         large-packages: false
         swap-storage: false
-
-    - name: 下载固件源码
+        
+    - name: 下载固件源码  Clone source code
       working-directory: /workdir
       run: |
         df -hT $PWD
         git clone $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
-    - name: 加载feeds.conf.default & DIY_P1_SH
+    - name: 加载源  Load custom feeds
       run: |
         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
         chmod +x $DIY_P1_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P1_SH
-        
-  #  - name: 修复ccache
-  #    run: |
- #      cd openwrt/tools/ccache
-#       sed -i '14c\108100960bb7e64573ea925af2ee7611701241abb36ce0aae3354528403a7d87' Makefile
-        
-    - name: 更新 & 安装 feeds
-      run: |
-        cd openwrt
-        ./scripts/feeds update -a
-        ./scripts/feeds install -a
 
-    - name: 加载config & DIY_P2_SH
+    - name: 更新源  Update feeds
+      run: cd openwrt && ./scripts/feeds update -a
+
+    - name: 安装源  Install feeds
+      run: cd openwrt && ./scripts/feeds install -a
+
+    - name: 加载diy.config设置  Load custom configuration
       run: |
+        [ -e files ] && mv files openwrt/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         chmod +x $DIY_P2_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
-
     - name: 设置LAN IP地址（路由器登录地址）
       run: |
         cd openwrt
@@ -181,7 +191,7 @@ jobs:
         	sed -i 's/CONFIG_MTK_MT_WIFI_MT7981_20240823=y/CONFIG_MTK_MT_WIFI_MT7981_${firmware}=y/g' .config
         fi
         echo "Use WiFi Driver: $wifi_driver-fw-$firmware"
-
+        
     - name: 使用nx30pro的高功率eeprom并固定WiFi MAC地址
       if: github.event.inputs.EEPROM == 'true'
       run: |
@@ -200,7 +210,7 @@ jobs:
         ## 将文本内容写入02_network
         sed -i '/mediatek_setup_macs()/,/\};/ {/cmcc,xr30)/ {n;n;n;r temp_insert.txt
         }}' target/linux/mediatek/mt7981/base-files/etc/board.d/02_network
-
+        
     - name: 使用luci-app-mtk无线配置
       if: github.event.inputs.APP_MTK == 'true'
       run: |
@@ -209,19 +219,21 @@ jobs:
         sed -i 's/CONFIG_PACKAGE_luci-i18n-mtwifi-cfg-zh-cn=y/CONFIG_PACKAGE_luci-i18n-mtk-zh-cn=y/g' .config
         sed -i 's/CONFIG_PACKAGE_mtwifi-cfg=y/CONFIG_PACKAGE_wifi-profile=y/g' .config
         sed -i 's/CONFIG_PACKAGE_lua-cjson=y/CONFIG_WIFI_NORMAL_SETTING=y/g' .config
-
-    - name: 编译dockerman
-      if: github.event.inputs.DOCKERMAN == 'true'
-      run: |
-        cd openwrt
-        sed -i '/CONFIG_PACKAGE_luci-app-dockerman=y/d' .config
-
-    - name: SSH链接管理
+         
+    - name: SSH远程连接服务器配置固件  SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
       if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
       env:
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        
+    - name: 缓存加速
+      if: env.CACHEWRTBUILD_SWITCH == 'true'
+      uses: stupidloud/cachewrtbuild@main
+      with:
+        ccache: 'true'
+        mixkey: "${{ env.TARGET_PROFILE }}"
+        prefix: ${{ github.workspace }}/openwrt
     - name: 设置通用缓存
       id: cache-common
       uses: actions/cache@v3
@@ -252,21 +264,11 @@ jobs:
         
     - name: 检查缓存路径1
       run: |
-        ls -lah openwrt/dl || echo "dl 不存在"
-        ls -lah openwrt/build_dir || echo "build_dir 不存在"  
-    - name: 打印.config
-      id: print
-      run: |
         cd openwrt
-        cat .config
+        ls -lah dl || echo "dl 不存在"
+        ls -lah build_dir || echo "build_dir 不存在"    
         
-    - name: 打印feeds.conf.default
-      id: printfeed
-      run: |
-        cd openwrt
-        cat feeds.conf.default
-        
-    - name: 下载安装包
+    - name: 下载软件包  Download package
       id: package
       run: |
         cd openwrt
@@ -274,7 +276,15 @@ jobs:
         make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
-
+        cat .config
+    - name: 检查 EEPROM 文件是否存在
+      if: ${{ github.event.inputs.EEPROM == 'true' }}
+      run: |
+        EEPROM_PATH="package/eeprom_file"  # 请根据实际路径修改
+        if [ ! -f "$EEPROM_PATH" ]; then
+          echo "❌ EEPROM 文件不存在，路径：$EEPROM_PATH"
+          exit 1
+        fi
     - name: 开始编译固件  Compile the firmware
       id: compile
       run: |
@@ -310,10 +320,22 @@ jobs:
         fi
         echo "FILE_DATE=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
-
-    - name: 查看磁盘使用情况
+    
+    - name: 检查缓存路径2
+      run: |
+        ls -lah dl || echo "dl 不存在"
+        ls -lah build_dir || echo "build_dir 不存在"
+        
+    - name: 检查github储存空间情况  Check space usage
       if: (!cancelled())
       run: df -hT
+
+    - name: 加载bin目录在github空间  Upload bin directory
+      uses: actions/upload-artifact@main
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
+      with:
+        name: OpenWrt_bin${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
+        path: openwrt/bin
 
     - name: 整理文件并重命名
       id: organize
@@ -324,7 +346,7 @@ jobs:
         rm -rf packages
         sudo -E apt-get -qq install rename
         for val in "${devices[@]}"; do
-          rename "s/.*${val}/${{ env.FILE_DATE }}-${{ env.OPENWRT_NAME }}-${val}${{ env.WIFI_VERSION }}${{ env.EEPROM }}${{ env.BUILD_DOCKERMAN }}/" *
+          rename "s/.*${val}/${{ env.FILE_DATE }}-${{ env.OPENWRT_NAME }}-${val}${{ env.WIFI_INTERFACE }}${{ env.BUILD_DOCKERMAN }}/" *
           echo "$val"
         done
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
@@ -334,8 +356,26 @@ jobs:
       uses: actions/upload-artifact@main
       if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
-        name: ${{ env.FILE_DATE }}-${{ env.OPENWRT_NAME }}-${{ env.UPLOAD_TAG_NAME }}${{ env.WIFI_VERSION }}${{ env.EEPROM }}${{ env.BUILD_DOCKERMAN }}
+        name: ${{ env.FILE_DATE }}-${{ env.OPENWRT_NAME }}-${{ env.UPLOAD_TAG_NAME }}${{ env.WIFI_INTERFACE }}${{ env.BUILD_DOCKERMAN }}
         path: ${{ env.FIRMWARE }}
+
+    - name: 上传固件到奶牛快传  Upload firmware to cowtransfer
+      id: cowtransfer
+      if: steps.organize.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
+      run: |
+        curl -fsSL git.io/file-transfer | sh
+        ./transfer cow --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee cowtransfer.log
+        echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
+        echo "::set-output name=url::$(cat cowtransfer.log | grep https | cut -f3 -d" ")"
+
+    - name: 加载固件到WeTransfer  Upload firmware to WeTransfer
+      id: wetransfer
+      if: steps.organize.outputs.status == 'success' && env.UPLOAD_WETRANSFER == 'true' && !cancelled()
+      run: |
+        curl -fsSL git.io/file-transfer | sh
+        ./transfer wet -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee wetransfer.log
+        echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
+        echo "::set-output name=url::$(cat wetransfer.log | grep https | cut -f3 -d" ")"
 
     - name: 生成固件Release标签
       id: tag
@@ -343,13 +383,16 @@ jobs:
       run: |
         touch release.txt
         echo "- 使用源码：${{ env.REPO_URL }}" >> release.txt
-        echo "- 使用分支：${{ env.REPO_BRANCH }}" >> release.txt
         echo "- 登录地址：${{ env.IP_ADDR }}" >> release.txt
-        echo "- 使用WiFi驱动${{ github.event.inputs.WIFI_DRIVER }}" >> release.txt
-        if [[ "${{ env.EEPROM }}" == '-eeprom' ]]; then
-               echo "- 使用nx30pro高功率eeprom并固定WiFi MAC地址" >> release.txt
+        if [[ "${{ env.MAC_FIX }}" == '-MAC_fix' ]]; then
+                echo "- 修改源码 使用原厂的MAC地址顺序" >> release.txt
         else
-               echo "- 未使用nx30pro高功率eeprom未固定WiFi MAC地址" >> release.txt
+                echo "- 未修改源码中的MAC地址顺序" >> release.txt
+        fi
+        if [[ "${{ env.EEPROM }}" == '-eeprom' ]]; then
+               echo "- 使用nx30pro高功率eeprom" >> release.txt
+        else
+               echo "- 未使用nx30pro高功率eeprom" >> release.txt
         fi
         if [[ "${{ env.WIFI_INTERFACE }}" == '-mtwifi' ]]; then
                 echo "- 使用hanwckf mtwifi-cfg原生luci无线配置工具" >> release.txt
@@ -361,16 +404,31 @@ jobs:
         else
                 echo "- 未编译luci-app-dockerman" >> release.txt
         fi
-        echo "release_tag=${{ env.FILE_DATE }}-${{ env.OPENWRT_NAME }}-${{ env.UPLOAD_TAG_NAME }}${{ env.WIFI_VERSION }}${{ env.EEPROM }}${{ env.BUILD_DOCKERMAN }}" >> $GITHUB_OUTPUT
+        echo "release_tag=${{ env.FILE_DATE }}-${{ env.OPENWRT_NAME }}-${{ env.UPLOAD_TAG_NAME }}${{ env.WIFI_INTERFACE }}${{ env.BUILD_DOCKERMAN }}" >> $GITHUB_OUTPUT
         echo "status=success" >> $GITHUB_OUTPUT
 
     - name: 发布固件至Release
-      uses: softprops/action-gh-release@v2.1.0
+      uses: softprops/action-gh-release@master
       if: steps.tag.outputs.status == 'success' && !cancelled()
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         files: ${{ env.FIRMWARE }}/*
-        name: ${{ env.FILE_DATE }}-${{ env.OPENWRT_NAME }}-${{ env.UPLOAD_TAG_NAME }}${{ env.WIFI_VERSION }}${{ env.EEPROM }}${{ env.BUILD_DOCKERMAN }}
+        name: ${{ env.FILE_DATE }}-${{ env.OPENWRT_NAME }}-${{ env.UPLOAD_TAG_NAME }}${{ env.WIFI_INTERFACE }}${{ env.BUILD_DOCKERMAN }}
         tag_name: ${{ steps.tag.outputs.release_tag }}
         body_path: release.txt
+
+    # - name: 删除旧的工作流  Delete workflow runs
+    #   uses: GitRML/delete-workflow-runs@main
+    #   with:
+    #     retain_days: 1
+    #     keep_minimum_runs: 3
+
+    # - name: 删除旧的发布版本  Remove old Releases
+    #   uses: dev-drprasad/delete-older-releases@v0.1.0
+    #   if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+    #   with:
+    #     keep_latest: 3
+    #     delete_tags: true
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
