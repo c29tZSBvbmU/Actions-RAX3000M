@@ -252,11 +252,13 @@ jobs:
     - name: 打印.config
       id: print
       run: |
+        cd openwrt
         cat .config
         
     - name: 打印feeds.conf.default
       id: printfeed
       run: |
+        cd openwrt
         cat feeds.conf.default
         
     - name: 下载安装包
