@@ -65,10 +65,10 @@ env:
   ##因为是两个设备，所以手动设置上传时候的打包名称和tag名称UPLOAD_TAG_NAME
   OPENWRT_NAME: hanwckf
   UPLOAD_TAG_NAME: XR30-nand
-  # REPO_URL: https://github.com/hanwckf/immortalwrt-mt798x
-  REPO_URL: https://github.com/zheshifandian/immortalwrt-mt798x
-  # REPO_BRANCH: openwrt-21.02
-  REPO_BRANCH: mt6000
+  REPO_URL: https://github.com/hanwckf/immortalwrt-mt798x
+  #REPO_URL: https://github.com/zheshifandian/immortalwrt-mt798x
+  REPO_BRANCH: openwrt-21.02
+ # REPO_BRANCH: mt6000
   FEEDS_CONF: close-xr30/feeds.conf.default
   CONFIG_FILE: close-xr30/.config
   DIY_P1_SH: close-xr30/diy-part1.sh
@@ -135,10 +135,10 @@ jobs:
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P1_SH
         
-    - name: 修复ccache
-      run: |
-       cd openwrt/tools/ccache
-       sed -i '14c\108100960bb7e64573ea925af2ee7611701241abb36ce0aae3354528403a7d87' Makefile
+  #  - name: 修复ccache
+  #    run: |
+ #      cd openwrt/tools/ccache
+#       sed -i '14c\108100960bb7e64573ea925af2ee7611701241abb36ce0aae3354528403a7d87' Makefile
         
     - name: 更新 & 安装 feeds
       run: |
