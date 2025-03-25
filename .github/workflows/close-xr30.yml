@@ -277,14 +277,7 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
         cat .config
-    - name: 检查 EEPROM 文件是否存在
-      if: ${{ github.event.inputs.EEPROM == 'true' }}
-      run: |
-        EEPROM_PATH="package/eeprom_file"  # 请根据实际路径修改
-        if [ ! -f "$EEPROM_PATH" ]; then
-          echo "❌ EEPROM 文件不存在，路径：$EEPROM_PATH"
-          exit 1
-        fi
+        
     - name: 开始编译固件  Compile the firmware
       id: compile
       run: |
